@@ -2,7 +2,7 @@ import os
 
 import uvicorn
 from dotenv import load_dotenv
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request,APIRouter
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy import Column, Integer, String, Text, create_engine
@@ -47,8 +47,8 @@ Base = declarative_base()
 # Base = declarative_base()
 
 app = FastAPI()
-
-
+router = APIRouter()
+app.include_router(router)
 class ContactForm(Base):
     __tablename__ = "contact_form"
     
