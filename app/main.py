@@ -59,7 +59,7 @@ class ContactForm(Base):
 
 
 Base.metadata.create_all(bind=engine)
-templates = Jinja2Templates(directory="templates")
+templates = Jinja2Templates(directory="app/templates")
 @app.get("/")
 async def show_contact_form(request: Request):
     return templates.TemplateResponse("contact.html", {"request": request})
