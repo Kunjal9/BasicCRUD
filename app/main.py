@@ -2,7 +2,7 @@ import os
 
 import uvicorn
 from dotenv import load_dotenv
-from fastapi import FastAPI, Request,APIRouter
+from fastapi import APIRouter, FastAPI, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy import Column, Integer, String, Text, create_engine
@@ -12,16 +12,16 @@ from sqlalchemy.orm import declarative_base, sessionmaker
 load_dotenv()
 
 # SQLAlchemy specific code
-DB_HOST = os.getenv("DB_HOST", "localhost")
-DB_PORT = os.getenv("DB_PORT", "5432")
-DB_NAME = os.getenv("DB_NAME", "mydatabase")
-DB_USER = os.getenv("DB_USER", "postgres")
-DB_PASSWORD = os.getenv("DB_PASSWORD", "postgres")
+# DB_HOST = os.getenv("DB_HOST", "localhost")
+# DB_PORT = os.getenv("DB_PORT", "5432")
+# DB_NAME = os.getenv("DB_NAME", "mydatabase")
+# DB_USER = os.getenv("DB_USER", "postgres")
+# DB_PASSWORD = os.getenv("DB_PASSWORD", "postgres")
 
-SQLALCHEMY_DATABASE_URL = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
-engine = create_engine(SQLALCHEMY_DATABASE_URL)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-Base = declarative_base()
+# SQLALCHEMY_DATABASE_URL = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+# engine = create_engine(SQLALCHEMY_DATABASE_URL)
+# SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+# Base = declarative_base()
 
 # html_str = """<!DOCTYPE html>
 # <html>
@@ -47,8 +47,12 @@ Base = declarative_base()
 # Base = declarative_base()
 
 app = FastAPI()
-router = APIRouter()
-app.include_router(router)
+
+# router = APIRouter()
+
+# app.include_router(router)
+
+
 class ContactForm(Base):
     __tablename__ = "contact_form"
     
@@ -58,27 +62,27 @@ class ContactForm(Base):
     message = Column(Text)
 
 
-Base.metadata.create_all(bind=engine)
+# Base.metadata.create_all(bind=engine)
 templates = Jinja2Templates(directory="app/templates")
 @app.get("/")
 async def show_contact_form(request: Request):
     return templates.TemplateResponse("contact.html", {"request": request})
 
 
-@app.post("/contact")
-async def contact_form(request: Request):
-    form_data = await request.form()
-    name = form_data.get("name")
-    email = form_data.get("email")
-    message = form_data.get("message")
+# @app.post("/contact")
+# async def contact_form(request: Request):
+#     form_data = await request.form()
+#     name = form_data.get("name")
+#     email = form_data.get("email")
+#     message = form_data.get("message")
     
-    db = SessionLocal()
-    contact = ContactForm(name=name, email=email, message=message)
-    db.add(contact)
-    db.commit()
-    db.refresh(contact)
-    db.close()
-    return {"message": "Form submitted successfully"}
+    # db = SessionLocal()
+    # contact = ContactForm(name=name, email=email, message=message)
+    # db.add(contact)
+    # db.commit()
+    # db.refresh(contact)
+    # db.close()
+    # return {"message": "Form submitted successfully"}
 
 # @app.get("/users/{user_id}")
 # def read_user(user_id: int):
@@ -120,6 +124,7 @@ async def contact_form(request: Request):
 #     return {"message": "User deleted successfully"}
 def main():
     uvicorn.run(app, host="0.0.0.0", port=8000)
+   
     
 if __name__ == "__main__":
     main()
