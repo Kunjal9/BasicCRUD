@@ -1,27 +1,27 @@
 import os
-
+from fastapi.responses import JSONResponse
 import uvicorn
 from dotenv import load_dotenv
-from fastapi import APIRouter, FastAPI, Request
+from fastapi import APIRouter, FastAPI, Request, Response
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy import Column, Integer, String, Text, create_engine
-# from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import declarative_base, sessionmaker
 
 load_dotenv()
 
-# SQLAlchemy specific code
-# DB_HOST = os.getenv("DB_HOST", "localhost")
-# DB_PORT = os.getenv("DB_PORT", "5432")
-# DB_NAME = os.getenv("DB_NAME", "mydatabase")
-# DB_USER = os.getenv("DB_USER", "postgres")
-# DB_PASSWORD = os.getenv("DB_PASSWORD", "postgres")
+#SQLAlchemy specific code
+DB_HOST = os.getenv("DB_HOST", "guardians-of-galaxy-db.c69jajud067v.ap-south-1.rds.amazonaws.com")
+DB_PORT = os.getenv("DB_PORT", "5432")
+DB_NAME = os.getenv("DB_NAME", "contact_db")
+DB_USER = os.getenv("DB_USER", "postgres")
+DB_PASSWORD = os.getenv("DB_PASSWORD", "tSG2d3ytobaXgmFRuWns")
 
-# SQLALCHEMY_DATABASE_URL = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
-# engine = create_engine(SQLALCHEMY_DATABASE_URL)
-# SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-# Base = declarative_base()
+SQLALCHEMY_DATABASE_URL = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+engine = create_engine(SQLALCHEMY_DATABASE_URL)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+Base = declarative_base()
 
 # html_str = """<!DOCTYPE html>
 # <html>
@@ -44,7 +44,7 @@ load_dotenv()
 
 # """
 
-# Base = declarative_base()
+Base = declarative_base()
 
 app = FastAPI()
 
@@ -62,27 +62,30 @@ class ContactForm(Base):
     message = Column(Text)
 
 
-# Base.metadata.create_all(bind=engine)
-templates = Jinja2Templates(directory="app/templates")
+Base.metadata.create_all(bind=engine)
+templates = Jinja2Templates(directory="templates")
 @app.get("/")
 async def show_contact_form(request: Request):
-    return templates.TemplateResponse("contact.html", {"request": request})
+#	response.status_code = 200
+#	response.message = "Hello"
+#	return JSONResponse( status_code = 200, content = {"payload" :"hello"})
+	return templates.TemplateResponse("contact.html", {"request": request})
 
 
-# @app.post("/contact")
-# async def contact_form(request: Request):
-#     form_data = await request.form()
-#     name = form_data.get("name")
-#     email = form_data.get("email")
-#     message = form_data.get("message")
+@app.post("/contact")
+async def contact_form(request: Request):
+     form_data = await request.form()
+     name = form_data.get("name")
+     email = form_data.get("email")
+     message = form_data.get("message")
     
-    # db = SessionLocal()
-    # contact = ContactForm(name=name, email=email, message=message)
-    # db.add(contact)
-    # db.commit()
-    # db.refresh(contact)
-    # db.close()
-    # return {"message": "Form submitted successfully"}
+     db = SessionLocal()
+     contact = ContactForm(id=1,name=name, email=email, message=message)
+     db.add(contact)
+     db.commit()
+     db.refresh(contact)
+     db.close()
+     return {"message": "Form submitted successfully"}
 
 # @app.get("/users/{user_id}")
 # def read_user(user_id: int):
@@ -93,11 +96,11 @@ async def show_contact_form(request: Request):
 #     return user
 
 
-# @app.get("/users/")
-# def read_users():
-#     db = SessionLocal()
-#     users = db.query(User).all()
-#     return users
+@app.get("/users")
+def read_users():
+    db = SessionLocal()
+    users = db.query(ContactForm).all()
+    return users
 
 
 # @app.put("/users/{user_id}")
